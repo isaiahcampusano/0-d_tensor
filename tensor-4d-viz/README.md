@@ -20,7 +20,7 @@ Use `npm test`, `npm run lint`, and `npm run build` to verify the project.
 - Enable **2D fallback** for low-power devices or environments where WebGL is undesirable.
 - Import a rectangular nested JSON list, `{ "shape": [...], "data": [...] }`, or CSV whose first line is `shape: B,H,W,C`. The documented JSON export round-trips without a backend.
 
-Shapes are limited to `B ≤ 8`, `H,W ≤ 16`, `C ≤ 4`, and 16,384 total elements. Large reshapes run in a Web Worker, while the flat storage panel renders a virtualized window.
+Shapes are limited to `B ≤ 8`, `H,W ≤ 16`, `C ≤ 4`, and 16,384 total elements. Large reshapes and imports run in a Web Worker, while the flat storage panel renders a virtualized window. The Three.js renderer is loaded only when the 3D view is requested.
 
 ## Row-major mapping
 
@@ -45,3 +45,7 @@ The last dimension changes fastest. After channels, traversal advances through w
 ## Architecture
 
 React and TypeScript manage state and accessible controls, Three.js renders the instanced voxel mesh with OrbitControls, and a module Web Worker handles larger resizes. Data never leaves the browser.
+
+## Release verification
+
+The automated suite covers tensor math, validation, resizing, JSON/CSV/nested-list import round trips, accessible storage-row naming, and dialog focus containment/restoration. See [`CERTIFICATION.md`](CERTIFICATION.md) for the current evidence and the native browser/assistive-technology checklist required for full release certification.

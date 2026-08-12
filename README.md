@@ -3,6 +3,8 @@
 An educational tensor implementation built with plain Python. It stores values in
 a flat list and tracks their dimensions separately with a shape tuple.
 
+**Interactive demo:** [Open the 0-D Tensor Playground](https://isaiahcampusano.github.io/0-d_tensor/)
+
 ## 0-D to 4-D tensors
 
 A tensor's **rank** (`ndim`) is its number of axes. Its **shape** records the
@@ -36,6 +38,31 @@ Python 3.10 or newer is recommended. The project has no external dependencies.
 ```shell
 python demo.py
 ```
+
+## Interactive frontend
+
+The `docs/` folder contains a dependency-free HTML, CSS, and JavaScript
+playground for exploring rank, shape, nested notation, flat row-major storage,
+and `expand_dims`. GitHub Pages cannot execute Python directly, so the browser
+uses a small JavaScript port of the behavior defined by `tensor.py` and
+`TENSOR_SPEC.md`; the Python version remains the source of truth.
+
+No installation or build step is required. Serve the repository root and visit
+`http://localhost:8000/docs/` (the local server lets the browser load the ES
+modules correctly):
+
+```shell
+python -m http.server 8000
+```
+
+Run the frontend tests with Node's built-in test runner:
+
+```shell
+node --test docs/tests/*.test.mjs
+```
+
+The live site is published through GitHub Pages from the `main` branch's
+`/docs` folder.
 
 ## Example
 

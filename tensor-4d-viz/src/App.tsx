@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import './App.css'
 import { BatchSelector } from './components/BatchSelector'
 import { ChannelPlanesView } from './components/ChannelPlanesView'
@@ -9,12 +9,16 @@ import { StepThroughControls } from './components/StepThroughControls'
 import { Tooltip } from './components/Tooltip'
 import { TopBar } from './components/TopBar'
 import { ValueEditor } from './components/ValueEditor'
-import { VoxelView } from './components/VoxelView'
 import { useHighlight, type PointerPosition } from './hooks/useHighlight'
 import { useTensorState } from './hooks/useTensorState'
 import { coordsOf } from './lib/tensorMath'
 
 type ViewMode = 'voxel' | 'planes' | 'flat'
+
+const VoxelView = lazy(async () => {
+  const module = await import('./components/VoxelView')
+  return { default: module.VoxelView }
+})
 
 function App() {
   const { tensor, busy, setShape, setValue, replaceTensor } = useTensorState()
@@ -101,7 +105,9 @@ function App() {
                 <div className="stage-caption"><span>ACTIVE SAMPLE</span><b>Batch {batch}</b><small>{tensor.shape[1]} × {tensor.shape[2]} × {tensor.shape[3]}</small></div>
                 {busy && <div className="busy-indicator" role="status">Reshaping tensor…</div>}
                 {activeView === 'voxel' ? (
-                  <VoxelView tensor={tensor} batch={batch} highlightedIndex={highlightedIndex} onHover={handleHover} onSelect={setEditingIndex} />
+                  <Suspense fallback={<div className="busy-indicator" role="status">Loading 3D renderer…</div>}>
+                    <VoxelView tensor={tensor} batch={batch} highlightedIndex={highlightedIndex} onHover={handleHover} onSelect={setEditingIndex} />
+                  </Suspense>
                 ) : (
                   <ChannelPlanesView tensor={tensor} batch={batch} highlightedIndex={highlightedIndex} onHover={handleHover} onSelect={setEditingIndex} />
                 )}

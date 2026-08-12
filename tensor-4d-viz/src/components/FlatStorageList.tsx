@@ -60,7 +60,6 @@ export function FlatStorageList({ tensor, highlightedIndex, onHover, onSelect }:
               <button
                 role="option"
                 aria-selected={highlightedIndex === index}
-                aria-label={`Index ${index}, coordinates ${coords.join(', ')}, value ${tensor.data[index]}`}
                 key={index}
                 className={highlightedIndex === index ? 'storage-row highlighted' : 'storage-row'}
                 style={{ top: index * ROW_HEIGHT, '--row-color': hierarchyColor(coords) } as React.CSSProperties}

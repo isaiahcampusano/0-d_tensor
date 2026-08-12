@@ -41,5 +41,15 @@ export function useTensorWorker() {
     })
   }, [])
 
-  return { resize }
+  const parse = useCallback((text: string) => {
+    const worker = workerRef.current
+    if (!worker) return Promise.reject(new Error('Tensor worker is not ready.'))
+    const id = nextId.current++
+    return new Promise<Tensor4D>((resolve, reject) => {
+      pending.current.set(id, { resolve, reject })
+      worker.postMessage({ id, type: 'parse', text })
+    })
+  }, [])
+
+  return { resize, parse }
 }

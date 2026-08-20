@@ -9,7 +9,7 @@
 
 ## Keyboard use
 
-- [ ] Tab through examples, input, Load, Reset, tensor targets, axis input, and Apply.
+- [ ] Tab through Add a dimension, tensor targets, custom-tensor disclosure, examples, input, Load, Reset, axis input, and Apply.
 - [ ] Use Ctrl/Cmd+Enter to load the textarea value.
 - [ ] Use arrow keys to move among nested and flat tensor targets.
 - [ ] Use Enter or Space to pin a linked selection.
@@ -38,7 +38,15 @@
 - [ ] Check ragged, malformed, empty, oversized, and over-ranked inputs.
 - [ ] Reproduce the 0-D through 4-D `demo.py` expansion sequence.
 - [ ] Try axis `-1`, `99`, `-99`, and `1.5`.
-- [ ] Confirm Reset clears all state and returns focus to the textarea.
+- [ ] Confirm Back to 5 restores the 0-D scalar and returns focus to Add a dimension.
+
+## Comprehension gate (required before release)
+
+- [ ] Show the page cold, without explanation, to 1–2 people with no machine-learning background.
+- [ ] Let each person use it for no more than one minute.
+- [ ] Ask: “In your own words, what does dimension mean here?”
+- [ ] Proceed only if they can explain that dimension is the number of nesting/box levels.
+- [ ] If either person cannot, revise the opening builder or the inline analogies and repeat this check.
 
 ## GitHub Pages readiness
 

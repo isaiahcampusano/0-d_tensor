@@ -6,6 +6,23 @@ import {
   prod,
 } from "./tensor.mjs";
 
+export const DIMENSION_STORIES = [
+  { technical: "scalar", name: "A single number", analogy: "Like one temperature reading: 5°." },
+  { technical: "vector", name: "A list of numbers", analogy: "Like the temperatures for one week." },
+  { technical: "matrix", name: "A grid of numbers", analogy: "Like the pixels in a grayscale image." },
+  { technical: "3-D tensor", name: "A stack of grids", analogy: "Like the red, green, and blue layers of a color image." },
+  { technical: "4-D tensor", name: "A batch of image stacks", analogy: "Like several color images bundled together." },
+];
+
+export function dimensionStory(ndim) {
+  if (ndim < DIMENSION_STORIES.length) return DIMENSION_STORIES[ndim];
+  return {
+    technical: `${ndim}-D tensor`,
+    name: `${ndim} levels of nested boxes`,
+    analogy: "Five or more axes are usually used for batches, time steps, or other extra groupings.",
+  };
+}
+
 function element(tag, className = "", text = "") {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -52,11 +69,15 @@ export function renderNestedView(container, tensor, newAxis = null) {
     }
 
     const start = leafIndex;
-    const group = element("span", `tensor-group depth-${depth % 4}`);
+    const colorDepth = Math.min(depth + 1, 6);
+    const group = element("span", `tensor-group depth-${colorDepth}`);
     if (newAxis === depth) group.classList.add("axis-inserted");
-    const groupControl = element("button", "axis-badge group-control", `axis ${depth}`);
+    const groupControl = element("button", "axis-badge group-control", `Level ${depth + 1} (axis ${depth})`);
     groupControl.type = "button";
-    group.append(groupControl, element("span", "bracket", "["));
+    const context = element("span", "axis-context");
+    const story = dimensionStory(depth + 1);
+    context.append(element("strong", "", story.name), element("span", "", story.analogy));
+    group.append(groupControl, context, element("span", "bracket", "["));
 
     const contents = element("span", "tensor-group-contents");
     for (let index = 0; index < shape[0]; index += 1) {
@@ -68,7 +89,13 @@ export function renderNestedView(container, tensor, newAxis = null) {
     const end = Math.max(start, leafIndex - 1);
     const groupSize = prod(shape);
     const rangeLabel = groupSize === 0 ? "no stored values" : `flat indices ${start} through ${end}`;
-    setTargetData(groupControl, start, end, "group", `Axis ${depth} group, ${rangeLabel}`);
+    setTargetData(
+      groupControl,
+      start,
+      end,
+      "group",
+      `Level ${depth + 1}, axis ${depth}. ${story.name}. ${story.analogy} ${rangeLabel}`,
+    );
     return group;
   }
 
@@ -97,6 +124,20 @@ export function renderFlatView(container, tensor) {
       `Value ${value}, index ${indexLabel}, flat index ${flatIndex}`,
     );
     cell.append(
+      (() => {
+        const indicators = element("span", "flat-depth-indicators");
+        if (tensor.ndim === 0) {
+          const indicator = element("span", "depth-0", "0D");
+          indicator.title = "A scalar has zero nesting levels";
+          indicators.append(indicator);
+        }
+        for (let depth = 1; depth <= tensor.ndim; depth += 1) {
+          const indicator = element("span", `depth-${Math.min(depth, 6)}`, `L${depth}`);
+          indicator.title = `Nesting level ${depth}`;
+          indicators.append(indicator);
+        }
+        return indicators;
+      })(),
       element("span", "flat-index", String(flatIndex)),
       element("span", "flat-value", value),
       element("span", "multi-index", indexLabel),

@@ -1,12 +1,14 @@
 import { EXAMPLES } from "./examples.mjs";
 import { connectTensorViews } from "./interactions.mjs";
 import { ParseError, parseTensorLiteral } from "./parser.mjs";
-import { clearTensor, renderTensor } from "./render.mjs";
+import { dimensionStory, renderTensor } from "./render.mjs";
 import {
+  MAX_RANK,
   TensorError,
   createTensor,
   expandDims,
   formatShape,
+  visualize,
 } from "./tensor.mjs";
 
 const elements = {
@@ -28,6 +30,11 @@ const elements = {
   afterShape: document.querySelector("#after-shape"),
   expandNote: document.querySelector("#expand-note"),
   liveRegion: document.querySelector("#live-region"),
+  addDimension: document.querySelector("#add-dimension-button"),
+  story: document.querySelector("#dimension-story"),
+  storyKicker: document.querySelector("#dimension-kicker"),
+  storyName: document.querySelector("#dimension-name"),
+  storyAnalogy: document.querySelector("#dimension-analogy"),
 };
 
 let tensor = null;
@@ -97,6 +104,20 @@ function draw(newAxis = null) {
   disconnectInteractions();
   renderTensor(tensor, elements, newAxis);
   disconnectInteractions = connectTensorViews(elements.visualization, elements.liveRegion);
+  updateDimensionStory();
+}
+
+function updateDimensionStory() {
+  const story = dimensionStory(tensor.ndim);
+  elements.story.className = `dimension-story depth-${Math.min(tensor.ndim, MAX_RANK)}`;
+  elements.storyKicker.textContent = `${tensor.ndim} ${tensor.ndim === 1 ? "dimension" : "dimensions"} · ${story.technical}`;
+  elements.storyName.textContent = story.name;
+  elements.storyAnalogy.textContent = story.analogy;
+  elements.addDimension.disabled = tensor.ndim >= MAX_RANK;
+  elements.addDimension.firstChild.textContent = tensor.ndim >= MAX_RANK
+    ? "Maximum display depth reached "
+    : "Add a dimension ";
+  elements.addDimension.lastElementChild.hidden = tensor.ndim >= MAX_RANK;
 }
 
 function loadTensor() {
@@ -115,16 +136,31 @@ function loadTensor() {
 }
 
 function resetPlayground() {
-  tensor = null;
-  disconnectInteractions();
-  disconnectInteractions = () => {};
-  elements.input.value = "";
+  elements.input.value = "5";
   clearError();
-  clearTensor(elements);
+  const node = parseTensorLiteral(elements.input.value);
+  tensor = createTensor(node);
+  draw();
   resetExpandState();
   updateExampleState();
-  elements.liveRegion.textContent = "Playground reset.";
-  elements.input.focus();
+  elements.liveRegion.textContent = "Back to one number with zero dimensions.";
+  elements.addDimension.focus();
+}
+
+function addDimension() {
+  if (!tensor || tensor.ndim >= MAX_RANK) return;
+  const result = expandDims(tensor, 0);
+  tensor = result.tensor;
+  elements.input.value = visualizeLiteral();
+  draw(result.clampedAxis);
+  resetExpandState();
+  updateExampleState();
+  const story = dimensionStory(tensor.ndim);
+  elements.liveRegion.textContent = `Added dimension ${tensor.ndim}. ${story.name}. ${story.analogy}`;
+}
+
+function visualizeLiteral() {
+  return visualize(tensor);
 }
 
 function applyExpansion() {
@@ -143,6 +179,7 @@ function applyExpansion() {
     const previousNdim = tensor.ndim;
     const result = expandDims(tensor, enteredAxis);
     tensor = result.tensor;
+    elements.input.value = visualize(tensor);
     const after = formatShape(tensor.shape);
     elements.beforeShape.textContent = before;
     elements.afterShape.textContent = after;
@@ -154,6 +191,7 @@ function applyExpansion() {
       ? `Axis ${enteredAxis} was clamped to ${result.clampedAxis} (the valid range for a ${previousNdim}-D tensor is 0 to ${previousNdim}). The stored values didn't change — only the shape did.`
       : `New axis inserted at position ${result.clampedAxis}. The stored values didn't change — only the shape did.`;
     draw(result.clampedAxis);
+    updateExampleState();
     elements.liveRegion.textContent = elements.expandNote.textContent;
   } catch (error) {
     if (error instanceof TensorError) showAxisError(error);
@@ -162,7 +200,7 @@ function applyExpansion() {
 }
 
 renderExampleButtons();
-clearTensor(elements);
+loadTensor();
 resetExpandState();
 
 elements.form.addEventListener("submit", (event) => {
@@ -170,6 +208,7 @@ elements.form.addEventListener("submit", (event) => {
   loadTensor();
 });
 elements.reset.addEventListener("click", resetPlayground);
+elements.addDimension.addEventListener("click", addDimension);
 elements.input.addEventListener("input", updateExampleState);
 elements.input.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {

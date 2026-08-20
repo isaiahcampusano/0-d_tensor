@@ -3,22 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Explore tensor rank, shape, nested notation, and row-major flat storage from 0-D through 4-D.">
+    <meta name="description" content="Watch a number become a tensor as each new dimension adds another level of nested boxes.">
     <meta name="theme-color" content="#f5f4ef">
-    <title>0-D Tensor Playground</title>
+    <title>Tensor Box Builder</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
     <script type="module" src="./js/app.mjs"></script>
   </head>
   <body>
-    <a class="skip-link" href="#playground">Skip to playground</a>
+    <a class="skip-link" href="#playground">Skip to the builder</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="./" aria-label="0-D Tensor Playground home">
-          <span class="brand-mark" aria-hidden="true">[0]</span>
-          <span>0-D Tensor Playground</span>
+        <a class="brand" href="./" aria-label="Tensor Box Builder home">
+          <span class="brand-mark" aria-hidden="true">[5]</span>
+          <span>Tensor Box Builder</span>
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#learn">Learn</a>
+          <a href="#learn">Quick guide</a>
           <a class="repo-link" href="https://github.com/isaiahcampusano/0-d_tensor">GitHub repo <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
@@ -26,126 +27,107 @@
 
     <main>
       <section class="hero" aria-labelledby="hero-title">
-        <p class="eyebrow">An interactive companion to tensor.py</p>
-        <h1 id="hero-title">See how dimensions become data.</h1>
-        <p class="hero-copy">Build a tensor, reveal its shape, and trace every nested value to its place in flat row-major storage.</p>
-        <div class="concept-row" aria-label="Core tensor concepts">
-          <span><strong>rank</strong> counts axes</span>
-          <span><strong>shape</strong> sizes axes</span>
-          <span><strong>flat data</strong> stores values</span>
-        </div>
-      </section>
-
-      <section class="explainer page-section" aria-labelledby="explainer-title">
-        <div>
-          <p class="section-number">01 · THE IDEA</p>
-          <h2 id="explainer-title">From a scalar to four dimensions</h2>
-        </div>
-        <div class="dimension-steps">
-          <article><span class="dimension">0-D</span><code>5</code><p>A scalar has no axes.</p></article>
-          <article><span class="dimension">1-D</span><code>[5]</code><p>One axis makes a vector.</p></article>
-          <article><span class="dimension">2-D</span><code>[[5]]</code><p>Two axes make a matrix.</p></article>
-          <article><span class="dimension">3–4D</span><code>[[[5]]]</code><p>Each axis adds nesting.</p></article>
-        </div>
+        <p class="eyebrow">No machine-learning background needed</p>
+        <h1 id="hero-title">Numbers, packed into boxes.</h1>
+        <p class="hero-copy">A tensor is just numbers inside nested boxes. Its <strong>dimension</strong> tells you how many levels deep those boxes go.</p>
       </section>
 
       <section id="playground" class="playground page-section" aria-labelledby="playground-title">
-        <div class="section-heading">
+        <div class="builder-heading">
           <div>
-            <p class="section-number">02 · TRY IT</p>
-            <h2 id="playground-title">Build a tensor</h2>
+            <p class="section-number">WATCH IT GROW</p>
+            <h2 id="playground-title">Start with one number</h2>
+            <p>Each click adds one new box around the same value. The number does not change—only its nesting does.</p>
           </div>
-          <p>Start with an example or enter your own rectangular nested list.</p>
+          <button id="add-dimension-button" class="button builder-button" type="button">Add a dimension <span aria-hidden="true">＋</span></button>
         </div>
 
-        <fieldset class="examples-fieldset">
-          <legend>Load an example</legend>
-          <div id="example-buttons" class="example-buttons"></div>
-        </fieldset>
-
-        <form id="tensor-form" class="tensor-form" novalidate>
-          <label for="tensor-input">Or enter your own</label>
-          <textarea id="tensor-input" rows="5" spellcheck="false" placeholder="e.g. 5 or [[1, 2, 3], [4, 5, 6]]" aria-describedby="input-hint input-error" aria-invalid="false"></textarea>
-          <div id="input-error" class="message error-message" role="alert" hidden></div>
-          <div class="form-actions">
-            <div>
-              <button class="button primary" type="submit">Load tensor</button>
-              <button id="reset-button" class="button secondary" type="button">Reset</button>
-            </div>
-            <p id="input-hint" class="input-hint">Tip: Ctrl/Cmd + Enter also loads</p>
+        <section id="dimension-story" class="dimension-story depth-0" aria-live="polite" aria-labelledby="dimension-name">
+          <span id="dimension-kicker" class="dimension-kicker">0 dimensions · scalar</span>
+          <div>
+            <h3 id="dimension-name">A single number</h3>
+            <p id="dimension-analogy">Like one temperature reading: <strong>5°</strong>.</p>
           </div>
-        </form>
+        </section>
 
         <div class="summary" aria-label="Tensor summary">
-          <div><span>Rank <small>(ndim)</small></span><strong id="rank-value">—</strong></div>
-          <div><span>Shape</span><strong id="shape-value">—</strong></div>
-          <div><span>Stored values</span><strong id="count-value">—</strong></div>
+          <div><span><span class="term" tabindex="0" data-definition="Dimension, also called rank or ndim, is how many levels deep the nesting goes.">Dimensions <small>(rank / ndim)</small></span></span><strong id="rank-value">—</strong></div>
+          <div><span><span class="term" tabindex="0" data-definition="Shape tells you how many items fit at each nesting level.">Box sizes <small>(shape)</small></span></span><strong id="shape-value">—</strong></div>
+          <div><span>Numbers stored</span><strong id="count-value">—</strong></div>
         </div>
 
         <div id="visualization" class="visualization" hidden>
           <section class="visual-panel nested-panel" aria-labelledby="nested-title">
             <div class="panel-heading">
-              <div><span class="view-number">A</span><h3 id="nested-title">Nested structure</h3></div>
-              <p>Brackets reveal each axis</p>
+              <div><span class="view-number">A</span><h3 id="nested-title">Nested boxes <small>(structure)</small></h3></div>
+              <p>Each bracket pair is a level</p>
             </div>
             <div id="nested-view" class="nested-view" aria-label="Interactive nested tensor view"></div>
-            <p class="interaction-hint">Hover, focus, or select any group to trace its storage range.</p>
+            <p class="interaction-hint">Hover, focus, or select a level to see what it means.</p>
           </section>
           <section class="visual-panel flat-panel" aria-labelledby="flat-title">
             <div class="panel-heading">
-              <div><span class="view-number">B</span><h3 id="flat-title">Flat storage</h3></div>
-              <p>Row-major order</p>
+              <div><span class="view-number">B</span><h3 id="flat-title"><span class="term" tabindex="0" data-definition="Flat storage is the simple, one-after-another list where all the numbers are kept.">Numbers in a row <small>(flat storage)</small></span></h3></div>
+              <p><span class="term" tabindex="0" data-definition="Row-major order means reading each row from left to right before moving to the next one.">Read left to right <small>(row-major)</small></span></p>
             </div>
             <div id="flat-view" class="flat-view" aria-label="Interactive flat tensor storage"></div>
-            <p class="interaction-hint">Top: flat index · center: value · bottom: nested index</p>
+            <p class="interaction-hint">The colored L1, L2… markers connect each number to its nesting levels.</p>
           </section>
         </div>
 
-        <section class="expand-card" aria-labelledby="expand-title">
-          <div>
-            <p class="section-number">SHAPE OPERATION</p>
-            <h3 id="expand-title">Insert a size-1 axis</h3>
-            <p><code>expand_dims</code> changes the shape without moving or changing the values.</p>
+        <details class="custom-tensor">
+          <summary>Or try your own tensor</summary>
+          <div class="custom-tensor-body">
+            <fieldset class="examples-fieldset">
+              <legend>Choose an example</legend>
+              <div id="example-buttons" class="example-buttons"></div>
+            </fieldset>
+            <form id="tensor-form" class="tensor-form" novalidate>
+              <label for="tensor-input">Enter a number or nested list</label>
+              <textarea id="tensor-input" rows="5" spellcheck="false" placeholder="e.g. 5 or [[1, 2, 3], [4, 5, 6]]" aria-describedby="input-hint input-error" aria-invalid="false">5</textarea>
+              <div id="input-error" class="message error-message" role="alert" hidden></div>
+              <div class="form-actions">
+                <div>
+                  <button class="button primary" type="submit">Show tensor</button>
+                  <button id="reset-button" class="button secondary" type="button">Back to 5</button>
+                </div>
+                <p id="input-hint" class="input-hint">Tip: Ctrl/Cmd + Enter also loads</p>
+              </div>
+            </form>
+
+            <section class="expand-card" aria-labelledby="expand-title">
+              <div>
+                <p class="section-number">CHOOSE WHERE THE BOX GOES</p>
+                <h3 id="expand-title">Insert a size-1 level</h3>
+                <p><code>expand_dims</code> adds nesting without moving or changing any values.</p>
+              </div>
+              <form id="expand-form" class="expand-form" novalidate>
+                <label for="axis-input"><span class="term term-dark" tabindex="0" data-definition="An axis is the technical name for one direction or level in a tensor.">Level position <small>(axis)</small></span></label>
+                <div class="axis-controls">
+                  <input id="axis-input" type="text" inputmode="numeric" value="0" aria-describedby="expand-note" aria-invalid="false">
+                  <button id="expand-button" class="button primary" type="submit">Apply</button>
+                </div>
+                <div class="shape-change" aria-label="Shape before and after expansion">
+                  <span>Before <strong id="before-shape">—</strong></span><span class="arrow" aria-hidden="true">→</span><span>After <strong id="after-shape">—</strong></span>
+                </div>
+                <p id="expand-note" class="message info-message" hidden></p>
+              </form>
+            </section>
           </div>
-          <form id="expand-form" class="expand-form" novalidate>
-            <label for="axis-input">Axis position</label>
-            <div class="axis-controls">
-              <input id="axis-input" type="text" inputmode="numeric" value="0" aria-describedby="expand-note" aria-invalid="false" disabled>
-              <button id="expand-button" class="button primary" type="submit" disabled>Apply</button>
-            </div>
-            <div class="shape-change" aria-label="Shape before and after expansion">
-              <span>Before <strong id="before-shape">—</strong></span>
-              <span class="arrow" aria-hidden="true">→</span>
-              <span>After <strong id="after-shape">—</strong></span>
-            </div>
-            <p id="expand-note" class="message info-message" hidden></p>
-          </form>
-        </section>
+        </details>
       </section>
 
       <section id="learn" class="learning page-section" aria-labelledby="learn-title">
-        <div class="section-heading">
-          <div><p class="section-number">03 · TAKEAWAYS</p><h2 id="learn-title">What the shapes are telling you</h2></div>
-        </div>
-        <div class="learning-grid">
-          <article><span>01</span><h3>Rank is axis count</h3><p><code>ndim</code> always equals the number of entries in <code>shape</code>.</p></article>
-          <article><span>02</span><h3>Shape is a map</h3><p>Each shape entry tells you how many positions exist along one axis.</p></article>
-          <article><span>03</span><h3>Nesting is structure</h3><p>Every dimension adds a bracket layer, while a scalar needs none.</p></article>
-          <article><span>04</span><h3>Storage stays simple</h3><p>Dense values live in one flat list. Shape tells us how to reconstruct the nesting.</p></article>
-        </div>
-        <aside class="learning-note">
-          <strong>A useful edge case:</strong> an empty list has shape <code>(0,)</code>. Without any child values, the playground cannot infer an extra inner size such as <code>(0, 3)</code>.
-        </aside>
+        <p class="section-number">THE WHOLE IDEA</p>
+        <h2 id="learn-title">One sentence to remember</h2>
+        <blockquote>“A tensor is numbers packed into nested boxes, and its dimension is how many boxes deep it goes.”</blockquote>
+        <p class="learning-note"><strong>Technical vocabulary:</strong> dimension count is also called <code>rank</code> or <code>ndim</code>; each direction is an <code>axis</code>; the sizes of those directions make the <code>shape</code>.</p>
       </section>
     </main>
 
     <footer>
-      <div><strong>0-D Tensor Playground</strong><p>A dependency-free learning project.</p></div>
-      <div class="footer-links">
-        <a href="https://github.com/isaiahcampusano/0-d_tensor/blob/main/tensor.py">tensor.py</a>
-        <a href="https://github.com/isaiahcampusano/0-d_tensor/blob/main/TENSOR_SPEC.md">TENSOR_SPEC.md</a>
-        <a href="https://github.com/isaiahcampusano/0-d_tensor">Repository ↗</a>
-      </div>
+      <div><strong>Tensor Box Builder</strong><p>A dependency-free learning project.</p></div>
+      <div class="footer-links"><a href="https://github.com/isaiahcampusano/0-d_tensor/blob/main/tensor.py">tensor.py</a><a href="https://github.com/isaiahcampusano/0-d_tensor/blob/main/TENSOR_SPEC.md">TENSOR_SPEC.md</a></div>
     </footer>
     <div id="live-region" class="sr-only" aria-live="polite"></div>
   </body>
